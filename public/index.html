@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Asistencia Militar & AI Skill Analytics</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; padding: 15px; }
+        
+        .header-title { text-align: center; margin-bottom: 20px; }
+        .header-title h1 { color: #f8fafc; font-size: 1.6rem; letter-spacing: -0.5px; }
+        .header-title p { color: #94a3b8; font-size: 0.85rem; }
+
+        .container { max-width: 1300px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+        
+        .panels-top { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+        .card { background: #1e293b; padding: 16px 18px; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .card h2 { font-size: 0.95rem; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 6px; color: #cbd5e1; }
+        
+        .form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        input, select { padding: 9px 12px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; font-size: 0.9rem; color: #f8fafc; flex: 1; min-width: 120px; }
+        input:focus { outline: none; border-color: #3b82f6; }
+
+        .btn { border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; color: white; transition: all 0.2s; }
+        .btn-blue { background-color: #2563eb; } .btn-blue:hover { background-color: #1d4ed8; }
+        .btn-yellow { background-color: #d97706; } .btn-yellow:hover { background-color: #b45309; }
+        .btn-red { background-color: #dc2626; } .btn-red:hover { background-color: #b91c1c; }
+        .btn-gray { background-color: #475569; } .btn-gray:hover { background-color: #334155; }
+        .btn-ai { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; box-shadow: 0 0 12px rgba(168, 85, 247, 0.4); }
+        .btn-ai:hover { opacity: 0.9; }
+
+        .excel-table-wrapper { background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; overflow-x: auto; }
+        .header-control { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; text-align: left; background: #0f172a; }
+        th, td { border: 1px solid #334155; padding: 9px 12px; font-size: 0.85rem; }
+        th { background-color: #1e293b; color: #94a3b8; font-weight: 600; text-align: center; }
+        
+        td.cell-num { text-align: center; color: #64748b; font-weight: bold; width: 40px; }
+        td.cell-grado { color: #38bdf8; font-weight: 700; cursor: pointer; white-space: nowrap; width: 110px; }
+        td.cell-nombre { color: #f8fafc; font-weight: 600; cursor: pointer; }
+        td.cell-grado:hover, td.cell-nombre:hover { text-decoration: underline; color: #7dd3fc; }
+        
+        th.clickable-header { cursor: pointer; }
+        th.clickable-header:hover { background-color: #334155; color: #38bdf8; }
+        
+        td.cell-radio { text-align: center; cursor: pointer; }
+        td.cell-radio input { cursor: pointer; width: 20px; height: 20px; accent-color: #3b82f6; }
+
+        /* CUADRO RESUMEN TIPO EXCEL */
+        .resumen-tabla-container {
+            margin-top: 25px;
+            max-width: 320px;
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #3b82f6;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .resumen-tabla-container h3 {
+            background: #1e3a8a;
+            color: #93c5fd;
+            font-size: 0.85rem;
+            padding: 8px 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #3b82f6;
+        }
+        .table-resumen { width: 100%; border-collapse: collapse; }
+        .table-resumen td { padding: 8px 14px; font-size: 0.9rem; border: 1px solid #1e293b; }
+        .table-resumen tr:nth-child(even) { background-color: #131d31; }
+        .table-resumen td.col-label { color: #cbd5e1; font-weight: 500; text-transform: lowercase; }
+        .table-resumen td.col-value { text-align: right; font-weight: 700; color: #38bdf8; font-size: 1rem; width: 80px; }
+        .table-resumen tr.fila-efectivos { background-color: #1e293b; }
+        .table-resumen tr.fila-efectivos td.col-label { color: #f8fafc; font-weight: 700; }
+        .table-resumen tr.fila-efectivos td.col-value { color: #4ade80; font-size: 1.1rem; }
+
+        /* PANEL IA ANALYTICS */
+        .ai-panel { 
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); 
+            border: 1px solid #6366f1; 
+            border-radius: 12px; 
+            padding: 18px; 
+            margin-top: 20px; 
+            display: none; 
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+        }
+        .ai-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(99, 102, 241, 0.3); padding-bottom: 10px; margin-bottom: 12px; }
+
+        .nav-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+        .tab-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+        .tab-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .header-title h1 { font-size: 1.3rem; }
+            .btn { width: 100%; }
+            input, select { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-title">
+        <h1>Control de Asistencia & Parte Militar</h1>
+        <p>Matriz interactiva en tiempo real para registro de personal</p>
+    </div>
+
+    <div class="container">
+        
+        <!-- PANELES DE GESTIÓN -->
+        <div class="panels-top">
+            <!-- Gestionar Condición -->
+            <div class="card">
+                <h2>Gestionar Condición / Estado</h2>
+                <div class="form-row">
+                    <input type="text" id="nombre-condicion" placeholder="Escribe o selecciona condición...">
+                </div>
+                <div class="form-row">
+                    <button class="btn btn-blue" onclick="guardarCondicion()">+ Guardar</button>
+                    <button class="btn btn-yellow" onclick="editarCondicion()">Editar</button>
+                    <button class="btn btn-red" onclick="eliminarCondicion()">Eliminar</button>
+                    <button class="btn btn-gray" onclick="limpiarCondicion()">Limpiar</button>
+                </div>
+            </div>
+
+            <!-- Gestionar Personal con Grado Militar -->
+            <div class="card">
+                <h2>Gestionar Personal / Grado Militar</h2>
+                <div class="form-row">
+                    <input type="text" id="grado-personal" placeholder="Grado (Ej: Tco1, Sgt)" style="max-width: 140px;">
+                    <input type="text" id="nombre-personal" placeholder="Nombre completo...">
+                </div>
+                <div class="form-row">
+                    <button class="btn btn-blue" onclick="guardarPersonal()">+ Guardar</button>
+                    <button class="btn btn-yellow" onclick="editarPersonal()">Editar</button>
+                    <button class="btn btn-red" onclick="eliminarPersonal()">Eliminar</button>
+                    <button class="btn btn-gray" onclick="limpiarPersonal()">Limpiar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑAS DE MODOS -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="tab-diario" onclick="cambiarVista('diario')">Matriz Diaria</button>
+            <button class="tab-btn" id="tab-rango" onclick="cambiarVista('rango')">Historial Acumulado (Rango)</button>
+        </div>
+
+        <!-- TABLA MATRIZ ESTILO EXCEL -->
+        <div class="excel-table-wrapper">
+            
+            <div class="header-control" id="control-diario">
+                <h2>Matriz de Control Diario</h2>
+                <div>
+                    <label style="font-size: 0.9rem; color: #94a3b8; margin-right: 5px;"><strong>Fecha: </strong></label>
+                    <input type="date" id="fecha-asistencia" style="width: auto;">
+                </div>
+            </div>
+
+            <div class="header-control" id="control-rango" style="display: none;">
+                <h2>Acumulado por Rango de Fechas</h2>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <label style="font-size:0.85rem; color:#94a3b8;">Desde:</label>
+                    <input type="date" id="fecha-desde" style="width: auto;">
+                    <label style="font-size:0.85rem; color:#94a3b8;">Hasta:</label>
+                    <input type="date" id="fecha-hasta" style="width: auto;">
+                    <button class="btn btn-blue" onclick="cargarAcumuladoRango()">Consultar Rango</button>
+                    <button class="btn btn-ai" onclick="ejecutarAiSkill()">✦ Analizar con AI Skill</button>
+                </div>
+            </div>
+
+            <!-- TABLA PRINCIPAL -->
+            <table id="tabla-matriz">
+                <thead>
+                    <tr id="headers-row">
+                        <th style="width: 40px;">N°</th>
+                        <th style="text-align: left; width: 110px;">Grado</th>
+                        <th style="text-align: left;">Nombre Completo</th>
+                    </tr>
+                </thead>
+                <tbody id="body-matriz">
+                    <tr><td colspan="7">Cargando matriz...</td></tr>
+                </tbody>
+            </table>
+
+            <!-- CUADRO DE RESUMEN INFERIOR -->
+            <div class="resumen-tabla-container" id="resumen-container">
+                <h3 id="titulo-resumen">Resumen Diario</h3>
+                <table class="table-resumen">
+                    <tbody id="body-cuadro-resumen">
+                        <!-- Generado dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PANEL VISUAL DE IA -->
+            <div class="ai-panel" id="ai-panel">
+                <div class="ai-header">
+                    <span style="font-size: 1.1rem; font-weight: 700; color: #a5b4fc;">✦ AI Attendance Assistant</span>
+                    <span style="font-size: 0.8rem; color: #94a3b8;" id="ai-periodo-texto">Evaluación del período</span>
+                </div>
+                <div style="color: #cbd5e1; font-size: 0.95rem;">
+                    <p id="ai-alerta" style="font-size: 1rem; font-weight: bold; margin-bottom: 8px;"></p>
+                    <ul id="ai-hallazgos" style="margin-left: 20px; line-height: 1.6;"></ul>
+                    <p id="ai-recomendacion" style="margin-top: 10px; font-style: italic; color: #818cf8;"></p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+        
+        let listaPersonal = [];
+        let listaCondiciones = [];
+        let registrosAsistencia = [];
+        let registrosRango = [];
+        let modoVista = 'diario';
+
+        let selectedPersonal = null;
+        let selectedCondicion = null;
+
+        const hoy = new Date();
+        document.getElementById('fecha-asistencia').valueAsDate = hoy;
+        document.getElementById('fecha-desde').valueAsDate = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        document.getElementById('fecha-hasta').valueAsDate = hoy;
+
+        async function inicializar() {
+            await cargarCondiciones();
+            await cargarPersonal();
+            await cargarAsistenciaFecha();
+        }
+
+        async function cargarCondiciones() {
+            const res = await fetch(`${API_URL}/condiciones`);
+            listaCondiciones = await res.json();
+        }
+
+        async function cargarPersonal() {
+            const res = await fetch(`${API_URL}/personal`);
+            listaPersonal = await res.json();
+        }
+
+        async function cargarAsistenciaFecha() {
+            const res = await fetch(`${API_URL}/asistencia`);
+            registrosAsistencia = await res.json();
+            if (modoVista === 'diario') renderizarMatrizDiaria();
+        }
+
+        function cambiarVista(modo) {
+            modoVista = modo;
+            document.getElementById('tab-diario').classList.toggle('active', modo === 'diario');
+            document.getElementById('tab-rango').classList.toggle('active', modo === 'rango');
+            document.getElementById('control-diario').style.display = modo === 'diario' ? 'flex' : 'none';
+            document.getElementById('control-rango').style.display = modo === 'rango' ? 'flex' : 'none';
+            document.getElementById('ai-panel').style.display = 'none';
+
+            if (modo === 'diario') {
+                document.getElementById('titulo-resumen').innerText = 'Resumen Diario';
+                renderizarMatrizDiaria();
+            } else {
+                document.getElementById('titulo-resumen').innerText = 'Resumen Acumulado';
+                cargarAcumuladoRango();
+            }
+        }
+
+        function renderizarMatrizDiaria() {
+            const headersRow = document.getElementById('headers-row');
+            const bodyMatriz = document.getElementById('body-matriz');
+            const fechaSeleccionada = document.getElementById('fecha-asistencia').value;
+
+            headersRow.innerHTML = `
+                <th style="width: 40px;">N°</th>
+                <th style="text-align: left; width: 110px;">Grado</th>
+                <th style="text-align: left;">Nombre Completo</th>
+            `;
+            listaCondiciones.forEach(c => {
+                headersRow.innerHTML += `<th class="clickable-header" onclick="seleccionarCondicion(${c.id}, '${c.nombre}')">${c.nombre}</th>`;
+            });
+
+            const contadores = {};
+            listaCondiciones.forEach(c => contadores[c.id] = 0);
+
+            bodyMatriz.innerHTML = '';
+            if (listaPersonal.length === 0) {
+                bodyMatriz.innerHTML = `<tr><td colspan="${listaCondiciones.length + 3}">No hay personal registrado.</td></tr>`;
+                renderizarCuadroResumen(contadores);
+                return;
+            }
+
+            listaPersonal.forEach((p, index) => {
+                const registroActual = registrosAsistencia.find(a => a.personal === p.nombre && a.fecha === fechaSeleccionada);
+
+                let celdasRadio = '';
+                listaCondiciones.forEach(c => {
+                    const isChecked = registroActual && registroActual.condicion === c.nombre;
+                    if (isChecked) contadores[c.id]++;
+
+                    celdasRadio += `
+                        <td class="cell-radio">
+                            <input type="radio" name="asistencia_${p.id}" value="${c.id}" ${isChecked ? 'checked' : ''} onclick="alternarAsistencia(${p.id}, ${c.id})">
+                        </td>
+                    `;
+                });
+
+                const gradoTexto = (p.grado && p.grado.trim() !== '') ? p.grado : '-';
+
+                bodyMatriz.innerHTML += `
+                    <tr>
+                        <td class="cell-num">${index + 1}</td>
+                        <td class="cell-grado" onclick="seleccionarPersonal(${p.id}, '${p.nombre}', '${p.grado || ''}')">${gradoTexto}</td>
+                        <td class="cell-nombre" onclick="seleccionarPersonal(${p.id}, '${p.nombre}', '${p.grado || ''}')">${p.nombre}</td>
+                        ${celdasRadio}
+                    </tr>
+                `;
+            });
+
+            renderizarCuadroResumen(contadores);
+        }
+
+        function renderizarCuadroResumen(contadores) {
+            const bodyResumen = document.getElementById('body-cuadro-resumen');
+            const totalEfectivos = listaPersonal.length;
+
+            let filasHTML = `
+                <tr class="fila-efectivos">
+                    <td class="col-label">efectivos</td>
+                    <td class="col-value">${totalEfectivos}</td>
+                </tr>
+            `;
+
+            listaCondiciones.forEach(c => {
+                const cantidad = contadores[c.id] || 0;
+                filasHTML += `
+                    <tr>
+                        <td class="col-label">${c.nombre.toLowerCase()}</td>
+                        <td class="col-value">${cantidad}</td>
+                    </tr>
+                `;
+            });
+
+            bodyResumen.innerHTML = filasHTML;
+        }
+
+        // --- CONSULTAR POR RANGO ---
+        async function cargarAcumuladoRango() {
+            const desde = document.getElementById('fecha-desde').value;
+            const hasta = document.getElementById('fecha-hasta').value;
+
+            if (!desde || !hasta) return alert('Por favor selecciona ambas fechas (Desde / Hasta).');
+
+            try {
+                const res = await fetch(`${API_URL}/asistencia/rango?desde=${desde}&hasta=${hasta}`);
+                registrosRango = await res.json();
+
+                const headersRow = document.getElementById('headers-row');
+                const bodyMatriz = document.getElementById('body-matriz');
+
+                headersRow.innerHTML = `
+                    <th style="width: 40px;">N°</th>
+                    <th style="text-align: left; width: 110px;">Grado</th>
+                    <th style="text-align: left;">Nombre Completo</th>
+                `;
+                listaCondiciones.forEach(c => {
+                    headersRow.innerHTML += `<th>${c.nombre} (Total)</th>`;
+                });
+
+                const contadoresTotales = {};
+                listaCondiciones.forEach(c => contadoresTotales[c.id] = 0);
+
+                bodyMatriz.innerHTML = '';
+                listaPersonal.forEach((p, index) => {
+                    const registrosPersona = registrosRango.filter(r => r.personal === p.nombre);
+
+                    let celdasConteo = '';
+                    listaCondiciones.forEach(c => {
+                        const cantidad = registrosPersona.filter(r => r.condicion === c.nombre).length;
+                        contadoresTotales[c.id] += cantidad;
+                        celdasConteo += `<td style="text-align: center; font-weight: bold; color: ${cantidad > 0 ? '#38bdf8' : '#64748b'};">${cantidad}</td>`;
+                    });
+
+                    const gradoTexto = (p.grado && p.grado.trim() !== '') ? p.grado : '-';
+
+                    bodyMatriz.innerHTML += `
+                        <tr>
+                            <td class="cell-num">${index + 1}</td>
+                            <td style="color: #38bdf8; font-weight: 700;">${gradoTexto}</td>
+                            <td style="font-weight: 600; color: #f8fafc;">${p.nombre}</td>
+                            ${celdasConteo}
+                        </tr>
+                    `;
+                });
+
+                renderizarCuadroResumen(contadoresTotales);
+            } catch (err) {
+                console.error('Error al cargar rango:', err);
+                alert('Ocurrió un error al consultar el rango de fechas.');
+            }
+        }
+
+        // --- ANALIZAR CON AI SKILL ---
+        async function ejecutarAiSkill() {
+            const desde = document.getElementById('fecha-desde').value;
+            const hasta = document.getElementById('fecha-hasta').value;
+
+            if (registrosRango.length === 0) {
+                await cargarAcumuladoRango();
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/ai/analizar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        desde,
+                        hasta,
+                        registros: registrosRango
+                    })
+                });
+
+                const data = await response.json();
+
+                const aiPanel = document.getElementById('ai-panel');
+                document.getElementById('ai-periodo-texto').innerText = `Período: ${desde} al ${hasta}`;
+                document.getElementById('ai-alerta').innerText = data.alerta;
+                
+                const ulHallazgos = document.getElementById('ai-hallazgos');
+                ulHallazgos.innerHTML = '';
+                data.hallazgos.forEach(h => {
+                    ulHallazgos.innerHTML += `<li>${h}</li>`;
+                });
+
+                document.getElementById('ai-recomendacion').innerText = `Recomendación: ${data.recomendacion}`;
+                
+                aiPanel.style.display = 'block';
+            } catch (err) {
+                console.error('Error invocando AI Skill:', err);
+                alert('No se pudo ejecutar el análisis de Inteligencia Artificial.');
+            }
+        }
+
+        function seleccionarPersonal(id, nombre, grado) {
+            selectedPersonal = { id, nombre, grado };
+            document.getElementById('nombre-personal').value = nombre;
+            document.getElementById('grado-personal').value = grado || '';
+        }
+
+        function limpiarPersonal() {
+            selectedPersonal = null;
+            document.getElementById('nombre-personal').value = '';
+            document.getElementById('grado-personal').value = '';
+        }
+
+        function seleccionarCondicion(id, nombre) {
+            selectedCondicion = { id, nombre };
+            document.getElementById('nombre-condicion').value = nombre;
+        }
+
+        function limpiarCondicion() {
+            selectedCondicion = null;
+            document.getElementById('nombre-condicion').value = '';
+        }
+
+        async function guardarPersonal() {
+            const nombre = document.getElementById('nombre-personal').value;
+            const grado = document.getElementById('grado-personal').value;
+            if(!nombre) return alert('Por favor escribe el nombre.');
+            
+            await fetch(`${API_URL}/personal`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, grado })
+            });
+
+            limpiarPersonal();
+            await cargarPersonal();
+            renderizarMatrizDiaria();
+        }
+
+        async function editarPersonal() {
+            if(!selectedPersonal) return alert('Haz clic en el nombre o grado de la persona en la tabla para seleccionarla.');
+            
+            const nuevoNombre = document.getElementById('nombre-personal').value;
+            const nuevoGrado = document.getElementById('grado-personal').value;
+
+            await fetch(`${API_URL}/personal/${selectedPersonal.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre: nuevoNombre, grado: nuevoGrado })
+            });
+
+            limpiarPersonal();
+            await cargarPersonal();
+            await cargarAsistenciaFecha();
+        }
+
+        async function eliminarPersonal() {
+            if(!selectedPersonal) return alert('Haz clic en la persona que deseas eliminar.');
+            if(confirm(`¿Deseas eliminar a "${selectedPersonal.nombre}"?`)) {
+                await fetch(`${API_URL}/personal/${selectedPersonal.id}`, { method: 'DELETE' });
+                limpiarPersonal();
+                await cargarPersonal();
+                renderizarMatrizDiaria();
+            }
+        }
+
+        async function guardarCondicion() {
+            const nombre = document.getElementById('nombre-condicion').value;
+            if(!nombre) return alert('Escribe una condición.');
+            await fetch(`${API_URL}/condiciones`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre })
+            });
+            limpiarCondicion();
+            await cargarCondiciones();
+            renderizarMatrizDiaria();
+        }
+
+        async function editarCondicion() {
+            if(!selectedCondicion) return alert('Selecciona una condición.');
+            const nuevoNombre = document.getElementById('nombre-condicion').value;
+            await fetch(`${API_URL}/condiciones/${selectedCondicion.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre: nuevoNombre })
+            });
+            limpiarCondicion();
+            await cargarCondiciones();
+            await cargarAsistenciaFecha();
+        }
+
+        async function eliminarCondicion() {
+            if(!selectedCondicion) return alert('Selecciona una condición.');
+            if(confirm(`¿Deseas eliminar "${selectedCondicion.nombre}"?`)) {
+                await fetch(`${API_URL}/condiciones/${selectedCondicion.id}`, { method: 'DELETE' });
+                limpiarCondicion();
+                await cargarCondiciones();
+                renderizarMatrizDiaria();
+            }
+        }
+
+        async function alternarAsistencia(personalId, condicionId) {
+            const fecha = document.getElementById('fecha-asistencia').value;
+            const persona = listaPersonal.find(p => p.id === personalId);
+            const condicion = listaCondiciones.find(c => c.id === condicionId);
+
+            if (!persona || !condicion) return;
+
+            const registroExistente = registrosAsistencia.find(a => a.personal === persona.nombre && a.fecha === fecha);
+
+            if (registroExistente && registroExistente.condicion === condicion.nombre) {
+                await fetch(`${API_URL}/asistencia/eliminar`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ personal_id: personalId, fecha })
+                });
+            } else {
+                await fetch(`${API_URL}/asistencia`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ personal_id: personalId, condicion_id: condicionId, fecha })
+                });
+            }
+
+            await cargarAsistenciaFecha();
+        }
+
+        document.getElementById('fecha-asistencia').addEventListener('change', cargarAsistenciaFecha);
+
+        inicializar();
+    </script>
+</body>
+</html>
