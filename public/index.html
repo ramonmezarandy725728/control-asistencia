@@ -22,8 +22,9 @@
         input, select { padding: 9px 12px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; font-size: 0.9rem; color: #f8fafc; flex: 1; min-width: 120px; }
         input:focus { outline: none; border-color: #3b82f6; }
 
-        .btn { border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; color: white; transition: all 0.2s; }
+        .btn { border: none; padding: 9px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; color: white; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-blue { background-color: #2563eb; } .btn-blue:hover { background-color: #1d4ed8; }
+        .btn-green { background-color: #16a34a; } .btn-green:hover { background-color: #15803d; }
         .btn-yellow { background-color: #d97706; } .btn-yellow:hover { background-color: #b45309; }
         .btn-red { background-color: #dc2626; } .btn-red:hover { background-color: #b91c1c; }
         .btn-gray { background-color: #475569; } .btn-gray:hover { background-color: #334155; }
@@ -47,6 +48,27 @@
         
         td.cell-radio { text-align: center; cursor: pointer; }
         td.cell-radio input { cursor: pointer; width: 20px; height: 20px; accent-color: #3b82f6; }
+
+        /* SECCIÓN BOTONES Y MENSAJE DE CONFIRMACIÓN POR FECHA */
+        .action-bar-asistencia {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .msg-exito {
+            background-color: #064e3b;
+            color: #6ee7b7;
+            border: 1px solid #10b981;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 6px;
+        }
 
         /* CUADRO RESUMEN TIPO EXCEL */
         .resumen-tabla-container {
@@ -118,10 +140,10 @@
                     <input type="text" id="nombre-condicion" placeholder="Escribe o selecciona condición...">
                 </div>
                 <div class="form-row">
-                    <button class="btn btn-blue" onclick="guardarCondicion()">+ Guardar</button>
-                    <button class="btn btn-yellow" onclick="editarCondicion()">Editar</button>
-                    <button class="btn btn-red" onclick="eliminarCondicion()">Eliminar</button>
-                    <button class="btn btn-gray" onclick="limpiarCondicion()">Limpiar</button>
+                    <button type="button" class="btn btn-blue" onclick="guardarCondicion()">+ Guardar</button>
+                    <button type="button" class="btn btn-yellow" onclick="editarCondicion()">Editar</button>
+                    <button type="button" class="btn btn-red" onclick="eliminarCondicion()">Eliminar</button>
+                    <button type="button" class="btn btn-gray" onclick="limpiarCondicion()">Limpiar</button>
                 </div>
             </div>
 
@@ -133,18 +155,18 @@
                     <input type="text" id="nombre-personal" placeholder="Nombre completo...">
                 </div>
                 <div class="form-row">
-                    <button class="btn btn-blue" onclick="guardarPersonal()">+ Guardar</button>
-                    <button class="btn btn-yellow" onclick="editarPersonal()">Editar</button>
-                    <button class="btn btn-red" onclick="eliminarPersonal()">Eliminar</button>
-                    <button class="btn btn-gray" onclick="limpiarPersonal()">Limpiar</button>
+                    <button type="button" class="btn btn-blue" onclick="guardarPersonal()">+ Guardar</button>
+                    <button type="button" class="btn btn-yellow" onclick="editarPersonal()">Editar</button>
+                    <button type="button" class="btn btn-red" onclick="eliminarPersonal()">Eliminar</button>
+                    <button type="button" class="btn btn-gray" onclick="limpiarPersonal()">Limpiar</button>
                 </div>
             </div>
         </div>
 
         <!-- PESTAÑAS DE MODOS -->
         <div class="nav-tabs">
-            <button class="tab-btn active" id="tab-diario" onclick="cambiarVista('diario')">Matriz Diaria</button>
-            <button class="tab-btn" id="tab-rango" onclick="cambiarVista('rango')">Historial Acumulado (Rango)</button>
+            <button type="button" class="tab-btn active" id="tab-diario" onclick="cambiarVista('diario')">Matriz Diaria</button>
+            <button type="button" class="tab-btn" id="tab-rango" onclick="cambiarVista('rango')">Historial Acumulado (Rango)</button>
         </div>
 
         <!-- TABLA MATRIZ ESTILO EXCEL -->
@@ -165,8 +187,8 @@
                     <input type="date" id="fecha-desde" style="width: auto;">
                     <label style="font-size:0.85rem; color:#94a3b8;">Hasta:</label>
                     <input type="date" id="fecha-hasta" style="width: auto;">
-                    <button class="btn btn-blue" onclick="cargarAcumuladoRango()">Consultar Rango</button>
-                    <button class="btn btn-ai" onclick="ejecutarAiSkill()">✦ Analizar con AI Skill</button>
+                    <button type="button" class="btn btn-blue" onclick="cargarAcumuladoRango()">Consultar Rango</button>
+                    <button type="button" class="btn btn-ai" onclick="ejecutarAiSkill()">✦ Analizar con AI Skill</button>
                 </div>
             </div>
 
@@ -183,6 +205,26 @@
                     <tr><td colspan="7">Cargando matriz...</td></tr>
                 </tbody>
             </table>
+
+            <!-- BOTONES DE ACCIÓN PARA GUARDAR / EDITAR / ACTUALIZAR -->
+            <div class="action-bar-asistencia" id="bar-acciones-diarias">
+                <button type="button" class="btn btn-green" id="btn-guardar-dia" onclick="confirmarGuardadoDia()">
+                    💾 Guardar Asistencia del Día
+                </button>
+                
+                <button type="button" class="btn btn-yellow" id="btn-editar-dia" onclick="habilitarModoEdicion()">
+                    ✏️ Editar Asistencia Guardada
+                </button>
+
+                <button type="button" class="btn btn-blue" id="btn-actualizar-dia" onclick="confirmarGuardadoDia()" style="display: none;">
+                    🔄 Actualizar Cambios
+                </button>
+
+                <!-- MENSAJE DE CONFIRMACIÓN -->
+                <div class="msg-exito" id="mensaje-exito">
+                    ✅ Se guardó exitosamente la asistencia del <span id="fecha-guardada-txt"></span>
+                </div>
+            </div>
 
             <!-- CUADRO DE RESUMEN INFERIOR -->
             <div class="resumen-tabla-container" id="resumen-container">
@@ -212,7 +254,7 @@
     </div>
 
     <script>
-const API_URL = window.location.origin + '/api';
+        const API_URL = window.location.origin + '/api';
         
         let listaPersonal = [];
         let listaCondiciones = [];
@@ -223,10 +265,12 @@ const API_URL = window.location.origin + '/api';
         let selectedPersonal = null;
         let selectedCondicion = null;
 
+        // Establecer fecha de hoy (AAAA-MM-DD)
         const hoy = new Date();
-        document.getElementById('fecha-asistencia').valueAsDate = hoy;
-        document.getElementById('fecha-desde').valueAsDate = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-        document.getElementById('fecha-hasta').valueAsDate = hoy;
+        const hoyIso = hoy.toLocaleDateString('sv-SE');
+        document.getElementById('fecha-asistencia').value = hoyIso;
+        document.getElementById('fecha-desde').value = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-01`;
+        document.getElementById('fecha-hasta').value = hoyIso;
 
         async function inicializar() {
             await cargarCondiciones();
@@ -235,19 +279,25 @@ const API_URL = window.location.origin + '/api';
         }
 
         async function cargarCondiciones() {
-            const res = await fetch(`${API_URL}/condiciones`);
-            listaCondiciones = await res.json();
+            try {
+                const res = await fetch(`${API_URL}/condiciones`);
+                listaCondiciones = await res.json();
+            } catch(e) { console.error('Error condiciones:', e); }
         }
 
         async function cargarPersonal() {
-            const res = await fetch(`${API_URL}/personal`);
-            listaPersonal = await res.json();
+            try {
+                const res = await fetch(`${API_URL}/personal`);
+                listaPersonal = await res.json();
+            } catch(e) { console.error('Error personal:', e); }
         }
 
         async function cargarAsistenciaFecha() {
-            const res = await fetch(`${API_URL}/asistencia`);
-            registrosAsistencia = await res.json();
-            if (modoVista === 'diario') renderizarMatrizDiaria();
+            try {
+                const res = await fetch(`${API_URL}/asistencia`);
+                registrosAsistencia = await res.json();
+                if (modoVista === 'diario') renderizarMatrizDiaria();
+            } catch(e) { console.error('Error asistencia:', e); }
         }
 
         function cambiarVista(modo) {
@@ -256,6 +306,7 @@ const API_URL = window.location.origin + '/api';
             document.getElementById('tab-rango').classList.toggle('active', modo === 'rango');
             document.getElementById('control-diario').style.display = modo === 'diario' ? 'flex' : 'none';
             document.getElementById('control-rango').style.display = modo === 'rango' ? 'flex' : 'none';
+            document.getElementById('bar-acciones-diarias').style.display = modo === 'diario' ? 'flex' : 'none';
             document.getElementById('ai-panel').style.display = 'none';
 
             if (modo === 'diario') {
@@ -292,16 +343,19 @@ const API_URL = window.location.origin + '/api';
             }
 
             listaPersonal.forEach((p, index) => {
-                const registroActual = registrosAsistencia.find(a => a.personal === p.nombre && a.fecha === fechaSeleccionada);
+                const registroActual = registrosAsistencia.find(a => 
+                    a.personal && a.personal.toLowerCase().trim() === p.nombre.toLowerCase().trim() && 
+                    a.fecha === fechaSeleccionada
+                );
 
                 let celdasRadio = '';
                 listaCondiciones.forEach(c => {
-                    const isChecked = registroActual && registroActual.condicion === c.nombre;
+                    const isChecked = registroActual && registroActual.condicion && registroActual.condicion.toLowerCase().trim() === c.nombre.toLowerCase().trim();
                     if (isChecked) contadores[c.id]++;
 
                     celdasRadio += `
                         <td class="cell-radio">
-                            <input type="radio" name="asistencia_${p.id}" value="${c.id}" ${isChecked ? 'checked' : ''} onclick="alternarAsistencia(${p.id}, ${c.id})">
+                            <input type="radio" name="asistencia_${p.id}" value="${c.id}" ${isChecked ? 'checked' : ''} onclick="alternarAsistencia(event, ${p.id}, ${c.id})">
                         </td>
                     `;
                 });
@@ -345,6 +399,63 @@ const API_URL = window.location.origin + '/api';
             bodyResumen.innerHTML = filasHTML;
         }
 
+        async function alternarAsistencia(event, personalId, condicionId) {
+            const fecha = document.getElementById('fecha-asistencia').value;
+            const persona = listaPersonal.find(p => p.id === personalId);
+            const condicion = listaCondiciones.find(c => c.id === condicionId);
+
+            if (!persona || !condicion) return;
+
+            const registroExistente = registrosAsistencia.find(a => 
+                a.personal && a.personal.toLowerCase().trim() === persona.nombre.toLowerCase().trim() && 
+                a.fecha === fecha
+            );
+
+            if (registroExistente && registroExistente.condicion.toLowerCase().trim() === condicion.nombre.toLowerCase().trim()) {
+                event.target.checked = false;
+                await fetch(`${API_URL}/asistencia/eliminar`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ personal_id: personalId, fecha })
+                });
+            } else {
+                await fetch(`${API_URL}/asistencia`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ personal_id: personalId, condicion_id: condicionId, fecha })
+                });
+            }
+
+            await cargarAsistenciaFecha();
+        }
+
+        // --- LÓGICA DE BOTONES: GUARDAR, EDITAR Y ACTUALIZAR ---
+        function confirmarGuardadoDia() {
+            const fecha = document.getElementById('fecha-asistencia').value;
+            if(!fecha) return alert('Por favor selecciona una fecha válida.');
+
+            // Ocultar botón de actualizar y mostrar guardar
+            document.getElementById('btn-actualizar-dia').style.display = 'none';
+            document.getElementById('btn-guardar-dia').style.display = 'inline-flex';
+
+            // Mostrar mensaje de éxito con la fecha seleccionada
+            const msgBox = document.getElementById('mensaje-exito');
+            document.getElementById('fecha-guardada-txt').innerText = fecha;
+            msgBox.style.display = 'inline-flex';
+
+            // Auto-ocultar el aviso suavemente después de 4 segundos
+            setTimeout(() => {
+                msgBox.style.display = 'none';
+            }, 4000);
+        }
+
+        function habilitarModoEdicion() {
+            // Ocultar botón 'Guardar' y mostrar 'Actualizar'
+            document.getElementById('btn-guardar-dia').style.display = 'none';
+            document.getElementById('btn-actualizar-dia').style.display = 'inline-flex';
+            document.getElementById('mensaje-exito').style.display = 'none';
+        }
+
         // --- CONSULTAR POR RANGO ---
         async function cargarAcumuladoRango() {
             const desde = document.getElementById('fecha-desde').value;
@@ -373,11 +484,11 @@ const API_URL = window.location.origin + '/api';
 
                 bodyMatriz.innerHTML = '';
                 listaPersonal.forEach((p, index) => {
-                    const registrosPersona = registrosRango.filter(r => r.personal === p.nombre);
+                    const registrosPersona = registrosRango.filter(r => r.personal && r.personal.toLowerCase().trim() === p.nombre.toLowerCase().trim());
 
                     let celdasConteo = '';
                     listaCondiciones.forEach(c => {
-                        const cantidad = registrosPersona.filter(r => r.condicion === c.nombre).length;
+                        const cantidad = registrosPersona.filter(r => r.condicion && r.condicion.toLowerCase().trim() === c.nombre.toLowerCase().trim()).length;
                         contadoresTotales[c.id] += cantidad;
                         celdasConteo += `<td style="text-align: center; font-weight: bold; color: ${cantidad > 0 ? '#38bdf8' : '#64748b'};">${cantidad}</td>`;
                     });
@@ -477,7 +588,7 @@ const API_URL = window.location.origin + '/api';
 
             limpiarPersonal();
             await cargarPersonal();
-            renderizarMatrizDiaria();
+            await cargarAsistenciaFecha();
         }
 
         async function editarPersonal() {
@@ -503,7 +614,7 @@ const API_URL = window.location.origin + '/api';
                 await fetch(`${API_URL}/personal/${selectedPersonal.id}`, { method: 'DELETE' });
                 limpiarPersonal();
                 await cargarPersonal();
-                renderizarMatrizDiaria();
+                await cargarAsistenciaFecha();
             }
         }
 
@@ -517,7 +628,7 @@ const API_URL = window.location.origin + '/api';
             });
             limpiarCondicion();
             await cargarCondiciones();
-            renderizarMatrizDiaria();
+            await cargarAsistenciaFecha();
         }
 
         async function editarCondicion() {
@@ -539,37 +650,16 @@ const API_URL = window.location.origin + '/api';
                 await fetch(`${API_URL}/condiciones/${selectedCondicion.id}`, { method: 'DELETE' });
                 limpiarCondicion();
                 await cargarCondiciones();
-                renderizarMatrizDiaria();
+                await cargarAsistenciaFecha();
             }
         }
 
-        async function alternarAsistencia(personalId, condicionId) {
-            const fecha = document.getElementById('fecha-asistencia').value;
-            const persona = listaPersonal.find(p => p.id === personalId);
-            const condicion = listaCondiciones.find(c => c.id === condicionId);
-
-            if (!persona || !condicion) return;
-
-            const registroExistente = registrosAsistencia.find(a => a.personal === persona.nombre && a.fecha === fecha);
-
-            if (registroExistente && registroExistente.condicion === condicion.nombre) {
-                await fetch(`${API_URL}/asistencia/eliminar`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ personal_id: personalId, fecha })
-                });
-            } else {
-                await fetch(`${API_URL}/asistencia`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ personal_id: personalId, condicion_id: condicionId, fecha })
-                });
-            }
-
-            await cargarAsistenciaFecha();
-        }
-
-        document.getElementById('fecha-asistencia').addEventListener('change', cargarAsistenciaFecha);
+        document.getElementById('fecha-asistencia').addEventListener('change', () => {
+            document.getElementById('mensaje-exito').style.display = 'none';
+            document.getElementById('btn-actualizar-dia').style.display = 'none';
+            document.getElementById('btn-guardar-dia').style.display = 'inline-flex';
+            cargarAsistenciaFecha();
+        });
 
         inicializar();
     </script>
