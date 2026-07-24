@@ -1,6 +1,8 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -8,14 +10,17 @@ const PORT = process.env.PORT || 3000;
 // --- MIDDLEWARES ---
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// --- CONEXIÓN A SQLITE ---
-const db = new sqlite3.Database('./asistencia.db', (err) => {
+// --- RUTA Y CONEXIÓN A SQLITE (Optimizada para Servidores Cloud) ---
+// En Render se utiliza /tmp/ para tener permisos de escritura sin bloqueo
+const dbPath = process.env.RENDER ? '/tmp/asistencia.db' : path.join(__dirname, 'asistencia.db');
+
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Error al conectar con SQLite:', err.message);
     } else {
-        console.log('Conectado exitosamente a la base de datos SQLite.');
+        console.log(`Conectado exitosamente a SQLite en: ${dbPath}`);
     }
 });
 
@@ -194,7 +199,7 @@ app.post('/api/asistencia', (req, res) => {
     });
 });
 
-// Eliminar marca de asistencia (para funcionalidad desmarcar/alternar)
+// Eliminar marca de asistencia (desmarcar)
 app.delete('/api/asistencia/eliminar', (req, res) => {
     const { personal_id, fecha } = req.body;
     if (!personal_id || !fecha) {
@@ -262,12 +267,16 @@ app.post('/api/ai/analizar', (req, res) => {
     });
 });
 
-// --- INICIAR SERVIDOR ---
-const server = app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+// --- RUTA PRINCIPAL FRONTEND ---
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Cierre ordenado de la base de datos al apagar el proceso
+// --- INICIAR SERVIDOR ---
+const server = app.listen(PORT, () => {
+    console.log(`Servidor corriendo en puerto ${PORT}`);
+});
+
 process.on('SIGINT', () => {
     db.close(() => {
         console.log('Conexión con SQLite cerrada.');
